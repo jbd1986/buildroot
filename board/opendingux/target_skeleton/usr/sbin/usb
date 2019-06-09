@@ -25,17 +25,41 @@ usb_start() {
 		mtp/configs/c.1 \
 		mtp/configs/c.1/strings/0x409 \
 		mtp/functions/ffs.mtp \
+		mtp/functions/geth.net \
 		mtp/functions/rndis.net
 
 	echo ${SERIAL_NUMBER} > mtp/strings/0x409/serialnumber
 	echo ${VENDOR} > mtp/strings/0x409/manufacturer
 	echo ${PRODUCT} > mtp/strings/0x409/product
 
-	if [ "$USB_ETHERNET" ] ; then
+	echo 0x80 > mtp/configs/c.1/bmAttributes # Bus powered
+	echo 500 > mtp/configs/c.1/MaxPower # 500 mA
+
+	if [ "x$USB_ETHERNET" = "xrndis" ] ; then
+		echo 0xef > mtp/bDeviceClass
+		echo 0x02 > mtp/bDeviceSubClass
+		echo 0x01 > mtp/bDeviceProtocol
+
+		echo 1 > mtp/os_desc/use
+		echo 0xcd > mtp/os_desc/b_vendor_code
+		echo MSFT100 > mtp/os_desc/qw_sign
+
+		# Match Windows RNDIS 6.0 driver (works best)
+		echo RNDIS > mtp/functions/rndis.net/os_desc/interface.rndis/compatible_id
+		echo 5162001 > mtp/functions/rndis.net/os_desc/interface.rndis/sub_compatible_id
+
 		echo 0x0525 > mtp/idVendor  # NetChip
 		echo 0xa4a2 > mtp/idProduct # Ethernet/RNDIS Gadget
-		echo ethernet > mtp/configs/c.1/strings/0x409/configuration
+		echo rndis > mtp/configs/c.1/strings/0x409/configuration
+
+		ln -s mtp/configs/c.1 mtp/os_desc/
 		ln -s mtp/functions/rndis.net mtp/configs/c.1/rndis.net
+
+	elif [ "$USB_ETHERNET" ] ; then
+		echo 0x049f > mtp/idVendor
+		echo 0x505a > mtp/idProduct
+		echo cdc > mtp/configs/c.1/strings/0x409/configuration
+		ln -s mtp/functions/geth.net mtp/configs/c.1/geth.net
 	else
 		echo 0x1d6b > mtp/idVendor  # Linux Foundation
 		echo 0x0100 > mtp/idProduct # PTP Gadget
@@ -73,10 +97,14 @@ usb_stop() {
 		umount /dev/ffs-umtp
 		rmdir /dev/ffs-umtp
 
-		rm -f mtp/configs/c.1/ffs.mtp mtp/configs/c.1/rndis.net
+		rm -f mtp/configs/c.1/ffs.mtp \
+			mtp/configs/c.1/geth.net \
+			mtp/configs/c.1/rndis.net
+
 		rmdir mtp/configs/c.1/strings/0x409 \
 			mtp/configs/c.1 \
 			mtp/functions/ffs.mtp \
+			mtp/functions/geth.net \
 			mtp/functions/rndis.net \
 			mtp/strings/0x409 \
 			mtp

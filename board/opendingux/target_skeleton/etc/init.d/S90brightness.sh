@@ -10,8 +10,8 @@ STATEFILE=/usr/local/etc/brightness.state
 case "$1" in
 	start)
 		echo "Loading brightness setting..."
-		if [ -f $STATEFILE ]; then
-			cp $STATEFILE $SYSFSFILE
+		if [ -r $STATEFILE ]; then
+			cat $STATEFILE > $SYSFSFILE
 		fi
 		;;
 	stop)

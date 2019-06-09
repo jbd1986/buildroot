@@ -13,6 +13,7 @@ size=$(( $SWAP_ZRAM_SIZE_MB * 1024 * 1024 ))
 if [ $size -ne 0 ]; then
 	if [ -b $SWAP_ZRAM_FILE ]; then
 		device=`/usr/bin/basename $SWAP_ZRAM_FILE`
+		echo $SWAP_ZRAM_ALGORITHM > /sys/devices/virtual/block/$device/comp_algorithm
 		echo $size > /sys/devices/virtual/block/$device/disksize
 		/sbin/mkswap $SWAP_ZRAM_FILE
 		/sbin/swapon -p$SWAP_ZRAM_PRIORITY $SWAP_ZRAM_FILE
