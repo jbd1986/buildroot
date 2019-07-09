@@ -14,3 +14,10 @@ done
 
 mkdir -p /var/run/sudo /var/tmp /var/log /var/lib
 chmod 777 /var/tmp
+
+[ -r /usr/local/etc/localfsinit.conf ] && . /usr/local/etc/localfsinit.conf
+
+if [ "x$CHOWN_HOME" != "xno" ] ; then
+	echo 'CHOWN_HOME=no' > /usr/local/etc/localfsinit.conf
+	chown -R od:users /usr/local/home /media/data/apps 2>/dev/null
+fi

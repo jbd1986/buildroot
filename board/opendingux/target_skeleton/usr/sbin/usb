@@ -16,7 +16,13 @@ usb_disable() {
 
 usb_start() {
 	. /etc/default/configfs
-	[ -r /usr/local/etc/usb.conf ] && . /usr/local/etc/usb.conf
+
+	if [ "$1" ] ; then
+		USB_MODE=$1
+	elif [ -r /usr/local/etc/usb.conf ] ; then
+		. /usr/local/etc/usb.conf
+		[ -z "$USB_MODE" ] && USB_MODE=mtp
+	fi
 
 	cd /sys/kernel/config/usb_gadget
 
@@ -35,7 +41,7 @@ usb_start() {
 	echo 0x80 > mtp/configs/c.1/bmAttributes # Bus powered
 	echo 500 > mtp/configs/c.1/MaxPower # 500 mA
 
-	if [ "x$USB_ETHERNET" = "xrndis" ] ; then
+	if [ "$USB_MODE" = rndis ] ; then
 		echo 0xef > mtp/bDeviceClass
 		echo 0x02 > mtp/bDeviceSubClass
 		echo 0x01 > mtp/bDeviceProtocol
@@ -55,12 +61,7 @@ usb_start() {
 		ln -s mtp/configs/c.1 mtp/os_desc/
 		ln -s mtp/functions/rndis.net mtp/configs/c.1/rndis.net
 
-	elif [ "$USB_ETHERNET" ] ; then
-		echo 0x049f > mtp/idVendor
-		echo 0x505a > mtp/idProduct
-		echo cdc > mtp/configs/c.1/strings/0x409/configuration
-		ln -s mtp/functions/geth.net mtp/configs/c.1/geth.net
-	else
+	elif [ "$USB_MODE" = mtp ] ; then
 		echo 0x1d6b > mtp/idVendor  # Linux Foundation
 		echo 0x0100 > mtp/idProduct # PTP Gadget
 		echo mtp > mtp/configs/c.1/strings/0x409/configuration
@@ -83,9 +84,15 @@ usb_start() {
 		# Fixup access rights of newly created EP nodes
 		chown root:mtp /dev/ffs-umtp/ep*
 		chmod 0660 /dev/ffs-umtp/ep*
+	else
+		echo 0x049f > mtp/idVendor
+		echo 0x505a > mtp/idProduct
+		echo cdc > mtp/configs/c.1/strings/0x409/configuration
+		ln -s mtp/functions/geth.net mtp/configs/c.1/geth.net
 	fi
 
 	echo "${UDC_NAME}" > /sys/kernel/config/usb_gadget/mtp/UDC
+	echo "USB_MODE=$(cat mtp/configs/c.1/strings/0x409/configuration)" > /usr/local/etc/usb.conf
 }
 
 usb_stop() {
@@ -114,25 +121,25 @@ usb_stop() {
 usb_get_status() {
 	if [ -d /sys/kernel/config/usb_gadget/mtp ] ; then
 		if [ "`cat /sys/kernel/config/usb_gadget/mtp/UDC`" = "${UDC_NAME}" ] ; then
-			echo "MTP is enabled"
+			echo "USB is enabled"
 			return 0
 		fi
 	fi
 
-	echo "MTP is not enabled"
+	echo "USB is not enabled"
 	return 1
 }
 
 case "$1" in
 	start)
-		usb_start
+		usb_start $2
 		;;
 	stop)
 		usb_stop
 		;;
 	restart)
 		usb_stop
-		usb_start
+		usb_start $2
 		;;
 	status)
 		usb_get_status
