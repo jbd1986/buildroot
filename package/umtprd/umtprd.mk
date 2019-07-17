@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-UMTPRD_VERSION = 46dff91
+UMTPRD_VERSION = dbccb1a
 UMTPRD_SITE = $(call github,viveris,uMTP-Responder,$(UMTPRD_VERSION))
 UMTPRD_LICENSE = GPL-3.0
 UMTPRD_LICENSE_FILES = LICENSE
