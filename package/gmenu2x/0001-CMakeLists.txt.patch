@@ -1,0 +1,47 @@
+diff -u gmenu2x/CMakeLists.txt gmenu2x/CMakeLists.txt
+--- gmenu2x/CMakeLists.txt	2019-10-03 01:56:10.498139706 +0200
++++ gmenu2x/CMakeLists.txt	2019-10-03 01:58:58.395128182 +0200
+@@ -6,17 +6,17 @@
+ 
+ option(CPUFREQ "Enable CPU frequency control" OFF)
+ if (CPUFREQ)
+-	add_compile_definitions(ENABLE_CPUFREQ)
++	add_definitions(-DENABLE_CPUFREQ)
+ endif(CPUFREQ)
+ 
+ option(CLOCK "Display current time at the bottom of the screen" ON)
+ if (CLOCK)
+-	add_compile_definitions(ENABLE_CLOCK)
++	add_definitions(-DENABLE_CLOCK)
+ endif (CLOCK)
+ 
+ option(BIND_CONSOLE "Support for binding/unbinding terminal" OFF)
+ if (BIND_CONSOLE)
+-	add_compile_definitions(BIND_CONSOLE)
++	add_definitions(-DBIND_CONSOLE)
+ endif (BIND_CONSOLE)
+ 
+ set(CARD_ROOT "/media" CACHE STRING "Top-level filesystem directory")
+@@ -52,11 +52,11 @@
+ if(LIBOPK_FOUND)
+ 	set(LIBOPK_LIBRARIES ${LIBOPK_LIBRARY})
+ 	set(LIBOPK_INCLUDE_DIRS ${LIBOPK_INCLUDE_DIR})
+-	add_compile_definitions(HAVE_LIBOPK)
++	add_definitions(-DHAVE_LIBOPK)
+ 
+ 	option(INOTIFY "Monitor OPK folder with inotify" ON)
+ 	if (INOTIFY)
+-		add_compile_definitions(ENABLE_INOTIFY)
++		add_definitions(-DENABLE_INOTIFY)
+ 	endif (INOTIFY)
+ endif(LIBOPK_FOUND)
+ 
+@@ -68,7 +68,7 @@
+ if (LIBXDGMIME_FOUND)
+ 	set(LIBXDGMIME_LIBRARIES ${LIBXDGMIME_LIBRARY})
+ 	set(LIBXDGMIME_INCLUDE_DIRS ${LIBXDGMIME_INCLUDE_DIR})
+-	add_compile_definitions(HAVE_LIBXDGMIME)
++	add_definitions(-DHAVE_LIBXDGMIME)
+ endif(LIBXDGMIME_FOUND)
+ 
+ file(GLOB OBJS src/*.cpp)
