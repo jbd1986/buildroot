@@ -1,0 +1,12 @@
+diff -u libopk-6e90206/CMakeLists.txt libopk-6e90206/CMakeLists.txt
+--- libopk-6e90206/CMakeLists.txt	2019-10-03 00:59:36.629579083 +0200
++++ libopk-6e90206/CMakeLists.txt	2019-10-03 01:00:46.941602271 +0200
+@@ -21,7 +21,7 @@
+ 
+ pkg_check_modules(ZLIB QUIET zlib)
+ if (ZLIB_FOUND)
+-	add_compile_definitions(USE_GZIP)
++	add_definitions(-DUSE_GZIP)
+ 	link_directories(${ZLIB_LIBRARY_DIRS})
+ 	include_directories(${ZLIB_INCLUDE_DIRS})
+ endif (ZLIB_FOUND)
